@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "node esbuild.js ",
+    "build:watch": "node esbuild.js -w",
+    "start": "node dist/index.js",
+    "test": "jest --runInBand --forceExit",
+    "upgrade": "npx npm-check-updates -u && pnpm audit fix && pnpm i"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "openai": "^4.11.1",
+    "socket.io": "^4.7.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.10",
+    "esbuild": "^0.15.16",
+    "npm-run-all": "^4.1.5",
+    "tslib": "^2.4.1"
+  }
+}
