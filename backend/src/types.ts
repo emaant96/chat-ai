@@ -5,7 +5,6 @@ export type MessageTokenized = {
   business_information: typeof businessInformation[number][]
 }
 
-export type PromptModel = { role: "function" | "system" | "user" | "assistant", content: string }
 
 export const businessInformation = ["bilancio", "pec", "indirizzo", "telefono", "email"] as const
 
@@ -63,7 +62,13 @@ export interface OpenapiCompanyAdvanced extends OpenapiCompany {
   };
 }
 
+export type OpenAiResponse<T> = { type: 'function', message: T } | {type: 'response', message: string}
 
-export type OpenAiMessage = { role: "function" | "system" | "user" | "assistant", content: string }
+
+export type OpenAiMessage = { role: "function" | "system" | "user" | "assistant", content: string, name?: string }
+
+export type StreamAIMessage = { text: string, first?: boolean, last?: boolean }
 
 export type AiFunction = OpenAI.Chat.Completions.ChatCompletionCreateParams.Function
+
+export type AiFunctionEnhanced = Function & { func?: (data: any) => Promise<any> }

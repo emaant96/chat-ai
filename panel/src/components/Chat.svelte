@@ -10,7 +10,7 @@
   onMount(() => {
     clientSocketService.subscribe('message', (message: { text: string, first: boolean, last: boolean }) => {
       if (message.first) {
-        let newBotMessage = {text: '', role: 'bot'};
+        let newBotMessage = {text: message.text, role: 'bot'};
         messages = [...messages, newBotMessage];
       } else {
         messages.at(-1).text += message.text || '';
@@ -20,8 +20,8 @@
   })
 
   $: {
-    console.log(messages);
-    setTimeout(() => scrollToBottom())
+    console.log(messages)
+    setTimeout(scrollToBottom)
   }
 
 
@@ -57,14 +57,18 @@
 <div class="mt-4 flex gap-2 w-9/12">
   <input class="flex-1" bind:value={newMessage.text} on:keyup={e => e.key === 'Enter' && sendMessage()}
          placeholder="Scrivi un messaggio..."/>
-  <button class="send-button" on:click={sendMessage}>
-    <Icon name="send" tooltip="Invia il messaggio" color="white"></Icon>
-  </button>
+
+  {#if newMessage.text}
+    <button class="send-button" on:click={sendMessage}>
+      <Icon name="send" tooltip="Invia il messaggio" color="white"></Icon>
+    </button>
+  {/if}
 </div>
 
 <style lang="postcss">
 
     @import "../assets/_scrollbar.scss";
+    @import "../assets/_animations.scss";
     @import "../app.scss";
 
     .messages-container {
@@ -96,7 +100,7 @@
     }
 
     .send-button {
-        @apply w-10 shadow-clean rounded-full aspect-square text-white bg-cyan-600 flex justify-center;
+        @apply w-10 shadow-clean rounded-full aspect-square text-white bg-cyan-600 flex justify-center animation-appear;
     }
 
     .arrow-right {

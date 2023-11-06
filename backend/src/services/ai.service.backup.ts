@@ -27,7 +27,9 @@
 //   }
 // ]
 //
-// const functions: AiFunction[] = [
+// import {Function, businessInformation} from "../types";
+//
+// const functions: Function[] = [
 //   {
 //     name: "get_info_company",
 //     description: "get the info about a company",

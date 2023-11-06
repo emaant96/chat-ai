@@ -11,6 +11,9 @@ dependencies:
   openai:
     specifier: ^4.11.1
     version: 4.11.1
+  serpapi:
+    specifier: ^2.0.0
+    version: 2.0.0
   socket.io:
     specifier: ^4.7.2
     version: 4.7.2
@@ -1056,6 +1059,10 @@ packages:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
     hasBin: true
     dev: true
+
+  /serpapi@2.0.0:
+    resolution: {integrity: sha512-LKrIBrXWhZDmS1urFwB8e/T8omW2C7r7ZmW231aVBtMbfNx/p9pi5gkiScM/VSAcsyhX1q3oPeWCvbzQiiwaCg==}
+    dev: false
 
   /set-function-length@1.1.1:
     resolution: {integrity: sha512-VoaqjbBJKiWtg4yRcKBQ7g7wnGnLV3M8oLvVWwOk2PdYY6PEFegR1vezXR0tw6fZGF9csVakIRjrJiy2veSBFQ==}

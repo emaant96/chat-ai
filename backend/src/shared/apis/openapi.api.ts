@@ -1,5 +1,5 @@
-import {globalConfig} from "../services/config";
-import {OpenapiCompany, OpenapiCompanyAdvanced} from "../types";
+import {globalConfig} from "../services/config.service";
+import {OpenapiCompany, OpenapiCompanyAdvanced} from "../../types";
 
 export class OpenapiService {
   options = {
@@ -39,4 +39,4 @@ export class OpenapiService {
   }
 }
 
-export const openApiService = new OpenapiService();
+export const openapi = new OpenapiService();
