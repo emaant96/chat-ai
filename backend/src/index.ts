@@ -2,7 +2,7 @@ import {Chat} from "./services/chat.service";
 import {gpt} from "./shared/apis/gpt.api";
 import {socketService} from "./shared/services/socket.service";
 import {functions} from "./services/ai.functions.service";
-import {ai} from "./services/ai.service";
+import {utils} from "./services/ai.service";
 
 
 socketService.onConnection((socket) => {
@@ -19,14 +19,18 @@ socketService.onConnection((socket) => {
   )
 
   chat.onMessage(async (data, resToClient) => {
-    chat.add({role: 'user', content: data})
+    chat.add({role: 'user', content: data + '. Current date: ' + new Date().toLocaleString()})
 
-    const response = await gpt.ask<{ company_name: string }>(chat.messages, functions.map(func => func.data))
+    const response = await gpt.askMulti<{
+      company_name: string
+    }>(chat.messages, resToClient, functions.map(func => func.data))
+
     if (response.type === 'function') {
       const {company_name} = response.message
-      const {success, content} = await ai.getCompanyInfo(company_name)
+      const {success, content} = await utils.getCompanyInfo(company_name)
       if (!success) {
         chat.add({role: 'assistant', content: content as string})
+        resToClient({text: chat.messages.at(-1).content as string, first: true})
       } else if (success) {
         chat.add({role: 'function', name: 'getInfoCompany', content: JSON.stringify(content)})
         const response = await gpt.askStream(chat.messages, resToClient)
@@ -35,8 +39,6 @@ socketService.onConnection((socket) => {
     } else if (response.type === 'response') {
       chat.add({role: 'assistant', content: response.message})
     }
-    resToClient({text: chat.messages.at(-1).content, first: true})
-
   })
 })
 

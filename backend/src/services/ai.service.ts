@@ -1,7 +1,7 @@
 import {openapi} from "../shared/apis/openapi.api";
 import {OpenapiCompanyAdvanced} from "../types";
 
-export class AiService {
+export class UtilsService {
 
   companyResponses = {
     noCompany: `Non ho trovato nessuna azienda, riprova con un nome diverso`,
@@ -25,4 +25,4 @@ export class AiService {
   }
 }
 
-export const ai = new AiService()
+export const utils = new UtilsService()

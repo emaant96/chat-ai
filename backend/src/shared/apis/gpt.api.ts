@@ -24,12 +24,44 @@ export class GptApi {
     }
   }
 
+  async askMulti<T>(
+    messages: OpenAiMessage[],
+    handleChunk: (data: StreamAIMessage) => (void | PromiseLike<void>),
+    functions?: AiFunction[]
+  ): Promise<OpenAiResponse<T>> {
+    let isFunctionCalling = false
+    let fullResponse = ""
+    let first = true
+    const stream = await openai.chat.completions.create({messages, model: this.model, stream: true, functions})
+
+    for await (const {choices: [result]} of stream) {
+
+      if (result.delta.function_call) isFunctionCalling = true
+
+      const text = isFunctionCalling ? result.delta.function_call?.arguments : result.delta.content
+      fullResponse += text || ""
+
+      if (!isFunctionCalling) {
+
+        const data = {text, first, last: result.finish_reason === 'stop'}
+        await handleChunk(data)
+
+        first = false
+      }
+    }
+    if (isFunctionCalling)
+      return {type: 'function', message: JSON.parse(fullResponse)}
+    else
+      return {type: 'response', message: fullResponse}
+  }
+
   async askStream(messages: OpenAiMessage[], handleChunk: (data: StreamAIMessage) => (void | PromiseLike<void>), functions?: AiFunction[]) {
     let fullResponse = ""
     let first = true
     const stream = await openai.chat.completions.create({messages, model: this.model, stream: true, functions})
 
     for await (const chunk of stream) {
+      console.dir({chunk}, {depth: null})
       const [result] = chunk.choices
       const text = result.delta.content
       fullResponse += text

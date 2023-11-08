@@ -3,14 +3,18 @@
   import Icon from './Icon.svelte';
   import {clientSocketService} from "../services/socket.service";
   import {onMount} from "svelte";
+  import Typing from "./Typing.svelte";
 
   let messages: AIMessage[] = [];
   let newMessage: AIMessage = {text: '', role: 'user'};
 
+  let loadingResponse = false;
+
   onMount(() => {
     clientSocketService.subscribe('message', (message: { text: string, first: boolean, last: boolean }) => {
       if (message.first) {
-        let newBotMessage = {text: message.text, role: 'bot'};
+        loadingResponse = false
+        let newBotMessage: AIMessage = {text: message.text, role: 'bot'};
         messages = [...messages, newBotMessage];
       } else {
         messages.at(-1).text += message.text || '';
@@ -35,6 +39,8 @@
     messages = [...messages, newMessage];
     clientSocketService.send('message', newMessage.text)
     newMessage = {text: '', role: 'user'};
+
+    loadingResponse = true
   }
 
 
@@ -52,6 +58,14 @@
       {/if}
     </div>
   {/each}
+  {#if loadingResponse}
+    <div class="message-container">
+      <div class="arrow-left"></div>
+      <div class="message">
+        <Typing/>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <div class="mt-4 flex gap-2 w-9/12">
