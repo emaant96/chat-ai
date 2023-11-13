@@ -9,7 +9,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css src/**/*.png dist/"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.248",
+    "@types/chrome": "^0.0.251",
     "autoprefixer": "^10.4.8",
     "chokidar": "^3.5.3",
     "copyfiles": "^2.4.1",

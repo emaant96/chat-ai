@@ -6,11 +6,12 @@ export const openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
 
 export const functionsModel = "gpt-3.5-turbo-0613"
 export const genericCheapModel = "gpt-3.5-turbo"
+export const niceModel = "gpt-4-1106-preview"
 
 export class GptApi {
   openai: OpenAI;
 
-  constructor(private model: "gpt-3.5-turbo-0613" | "gpt-3.5-turbo") {
+  constructor(private model: "gpt-3.5-turbo-0613" | "gpt-3.5-turbo" | "gpt-4-1106-preview") {
     this.openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
   }
 
@@ -76,4 +77,4 @@ export class GptApi {
   }
 }
 
-export const gpt = new GptApi(genericCheapModel);
+export const gpt = new GptApi(niceModel);

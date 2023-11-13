@@ -22,13 +22,32 @@ const getInfoCompanyParameters = {
 
 } as const
 
-export const functions: AiFunctionEnhanced[] = [
-  {
-    data: {
-      name: "getInfoCompany",
-      description: "get the info about a company",
-      parameters: getInfoCompanyParameters
+const getHtmlUniqueSelector = {
+  type: "object",
+  properties: {
+    selector: {
+      type: "string",
+      description: "The selector to use to get the information",
     },
-    func: utils.getCompanyInfo
+  },
+  required: ["selector"]
+} as const
+
+export const functions: AiFunctionEnhanced[] = [
+  // {
+  //   data: {
+  //     name: "getInfoCompany",
+  //     description: "get the info about a company",
+  //     parameters: getInfoCompanyParameters
+  //   },
+  //   func: utils.getCompanyInfo
+  // },
+  {
+    data:{
+      name: "getHtmlUniqueSelector",
+      description: "get the unique selector of an element given his textual description",
+      parameters: getHtmlUniqueSelector
+    },
+    func: utils.getHtmlUniqueSelector
   }
 ]

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {AIMessage} from 'model';
+  import type {AIMessage} from 'model';
   import Icon from './Icon.svelte';
   import {clientSocketService} from "../services/socket.service";
   import {onMount} from "svelte";

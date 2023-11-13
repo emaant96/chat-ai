@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [svelte()],
   base: './',
   build: {
+    minify: false,
     sourcemap: true,
     cssCodeSplit: false,
     outDir: '../extension/dist/page',
