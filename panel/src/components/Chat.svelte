@@ -11,10 +11,15 @@
   let loadingResponse = false;
 
   onMount(() => {
-    clientSocketService.subscribe('message', (message: { text: string, first: boolean, last: boolean }) => {
+    clientSocketService.subscribe('message', (message: {
+      text: string,
+      first: boolean,
+      last: boolean,
+      src: string
+    }) => {
       if (message.first) {
         loadingResponse = false
-        let newBotMessage: AIMessage = {text: message.text, role: 'bot'};
+        let newBotMessage: AIMessage = {text: message.text, role: 'bot', src: message.src};
         messages = [...messages, newBotMessage];
       } else {
         messages.at(-1).text += message.text || '';
@@ -52,7 +57,11 @@
       {#if message.role === 'bot'}
         <div class="arrow-left"></div>
       {/if}
-      <div class="message" class:user={message.role === 'user'}> {message.text} </div>
+      <div class="message" class:user={message.role === 'user'}>
+        {#if message.src}
+          <img class="rounded-lg" src={'data:image/png;base64,' + message.src} alt="Immagine"/>
+        {/if}
+        {message.text} </div>
       {#if message.role === 'user'}
         <div class="arrow-right"></div>
       {/if}

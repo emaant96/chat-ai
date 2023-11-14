@@ -9,6 +9,10 @@ export class UtilsService {
     manyCompanies: (companies: any[]) => `ho trovato ${companies.length} aziende, riprova con un nome più specifico`
   }
 
+  generateImage(imagePrompt: string){
+    return {success: true, content: imagePrompt}
+  };
+
   async getCompanyInfo(companyName: string): UtilsReturn<OpenapiCompanyAdvanced> {
     const companies = await openapi.getCompaniesByQuery(companyName)
     if (companies.length === 0) {

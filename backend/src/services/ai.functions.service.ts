@@ -33,6 +33,21 @@ const getHtmlUniqueSelector = {
   required: ["selector"]
 } as const
 
+export const generateImage = {
+  name: 'generate_image',
+  description: 'Generates an image from a text prompt',
+  parameters: {
+    type: 'object',
+    properties: {
+      prompt: {
+        type: 'string',
+        description: 'The text prompt to generate the image from'
+      }
+    },
+    required: ['prompt']
+  }
+};
+
 export const functions: AiFunctionEnhanced[] = [
   // {
   //   data: {
@@ -49,5 +64,22 @@ export const functions: AiFunctionEnhanced[] = [
       parameters: getHtmlUniqueSelector
     },
     func: utils.getHtmlUniqueSelector
+  },
+  {
+    data:{
+      name: 'generateImage',
+      description: 'Generates an image from a text prompt',
+      parameters: {
+        type: 'object',
+        properties: {
+          prompt: {
+            type: 'string',
+            description: 'The text prompt to generate the image from'
+          }
+        },
+        required: ['prompt']
+      }
+    },
+    func: utils.generateImage
   }
 ]

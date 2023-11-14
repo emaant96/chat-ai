@@ -62,12 +62,12 @@ export interface OpenapiCompanyAdvanced extends OpenapiCompany {
   };
 }
 
-export type OpenAiResponse<T> = { type: 'function', message: T } | { type: 'response', message: string }
+export type OpenAiResponse<T> = { type: 'function', message: T, name:string } | { type: 'response', message: string }
 
 
 export type OpenAiMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam
 
-export type StreamAIMessage = { text: string, first?: boolean, last?: boolean }
+export type StreamAIMessage = { text: string, first?: boolean, last?: boolean, src?: string }
 
 export type AiFunction = OpenAI.Chat.Completions.ChatCompletionCreateParams.Function
 

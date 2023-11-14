@@ -21,11 +21,11 @@ socketService.onConnection((socket) => {
   chat.onMessage(async (data, resToClient) => {
     chat.add({role: 'user', content: data + '. Current date: ' + new Date().toLocaleString()})
 
-    const response = await gpt.askMulti<{
-      company_name: string
+    const response = await gpt.askMulti<{ company_name: string } | {
+      prompt: string
     }>(chat.messages, resToClient, functions.map(func => func.data))
 
-    if (response.type === 'function') {
+    if (response.type === 'function' && response.name === 'getInfoCompany' && "company_name" in response.message) {
       const {company_name} = response.message
       const {success, content} = await utils.getCompanyInfo(company_name)
       if (!success) {
@@ -36,6 +36,11 @@ socketService.onConnection((socket) => {
         const response = await gpt.askStream(chat.messages, resToClient)
         chat.add({role: 'assistant', content: response})
       }
+    } else if (response.type == 'function' && response.name == 'generateImage' && "prompt" in response.message) {
+      console.log(response.message.prompt)
+      chat.add({role: 'function', name: 'generateImage', content: response.message.prompt})
+      const image = await gpt.imagePrompt(response.message.prompt);
+      resToClient({text: response.message.prompt, src: image.message, first: true})
     } else if (response.type === 'response') {
       chat.add({role: 'assistant', content: response.message})
     }
