@@ -67,11 +67,13 @@ export type OpenAiResponse<T> = { type: 'function', message: T, name:string } | 
 
 export type OpenAiMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam
 
+export type OpenAiChunk = OpenAI.Chat.Completions.ChatCompletionChunk
+
 export type StreamAIMessage = { text: string, first?: boolean, last?: boolean, src?: string }
 
 export type AiFunction = OpenAI.Chat.Completions.ChatCompletionCreateParams.Function
 
 export type AiFunctionEnhanced = ({
   data: AiFunction,
-  func: ((...args: keyof AiFunction['parameters']["properties"]) => any)
+  exec: ((...args: string[]) => any)
 })

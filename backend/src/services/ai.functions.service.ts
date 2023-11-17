@@ -1,5 +1,5 @@
-import {AiFunctionEnhanced, businessInformation} from "../types";
-import {utils} from "./ai.service";
+import {AiFunctionEnhanced} from "../types";
+import {utils} from "./utils.service";
 
 
 const getInfoCompanyParameters = {
@@ -9,14 +9,14 @@ const getInfoCompanyParameters = {
       type: "string",
       description: "The name of the company and 4 possible variations based on a standard company name",
     },
-    business_information: {
-      type: "array",
-      description: "The essential business information to use for the search",
-      items: {
-        type: "string",
-        enum: businessInformation
-      },
-    },
+    // business_information: {
+    //   type: "array",
+    //   description: "The essential business information to use for the search",
+    //   items: {
+    //     type: "string",
+    //     enum: businessInformation
+    //   },
+    // },
   },
   required: ["company_name"]
 
@@ -49,24 +49,24 @@ export const generateImage = {
 };
 
 export const functions: AiFunctionEnhanced[] = [
-  // {
-  //   data: {
-  //     name: "getInfoCompany",
-  //     description: "get the info about a company",
-  //     parameters: getInfoCompanyParameters
-  //   },
-  //   func: utils.getCompanyInfo
-  // },
   {
-    data:{
+    data: {
+      name: "getInfoCompany",
+      description: "get the info about a company",
+      parameters: getInfoCompanyParameters
+    },
+    exec: utils.getCompanyInfo
+  },
+  {
+    data: {
       name: "getHtmlUniqueSelector",
       description: "get the unique selector of an element given his textual description",
       parameters: getHtmlUniqueSelector
     },
-    func: utils.getHtmlUniqueSelector
+    exec: utils.getHtmlUniqueSelector
   },
   {
-    data:{
+    data: {
       name: 'generateImage',
       description: 'Generates an image from a text prompt',
       parameters: {
@@ -80,6 +80,6 @@ export const functions: AiFunctionEnhanced[] = [
         required: ['prompt']
       }
     },
-    func: utils.generateImage
+    exec: utils.generateImage
   }
 ]

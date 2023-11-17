@@ -1,6 +1,7 @@
 import {globalConfig} from "../services/config.service";
 import {OpenAI} from "openai";
-import {AiFunction, OpenAiMessage, OpenAiResponse, StreamAIMessage} from "../../types";
+import {AiFunction, AiFunctionEnhanced, OpenAiChunk, OpenAiMessage, OpenAiResponse, StreamAIMessage} from "../../types";
+import {Stream} from "openai/streaming";
 
 export const openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
 
@@ -10,6 +11,10 @@ export const niceModel = "gpt-4-1106-preview"
 
 export class GptApi {
   openai: OpenAI;
+  private isFunctionCalling: boolean;
+  private functionName: string;
+  private fullResponse: string;
+  private functionResult: any;
 
   constructor(private model: "gpt-3.5-turbo-0613" | "gpt-3.5-turbo" | "gpt-4-1106-preview") {
     this.openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
@@ -21,7 +26,11 @@ export class GptApi {
     if (response.finish_reason === 'stop') {
       return {type: 'response', message: response.message.content}
     } else {
-      return {type: 'function', message: JSON.parse(response.message.function_call.arguments), name: response.message.function_call.name}
+      return {
+        type: 'function',
+        message: JSON.parse(response.message.function_call.arguments),
+        name: response.message.function_call.name
+      }
     }
   }
 
@@ -30,17 +39,68 @@ export class GptApi {
     handleChunk: (data: StreamAIMessage) => (void | PromiseLike<void>),
     functions?: AiFunction[]
   ): Promise<OpenAiResponse<T>> {
+
+    const stream = await openai.chat.completions.create({messages, model: this.model, stream: true, functions})
+
+    let {isFunctionCalling, functionName, fullResponse} = await this.handleGPTResponse(stream, handleChunk);
+
+
+    if (isFunctionCalling)
+      return {type: 'function', message: JSON.parse(fullResponse), name: functionName}
+    else
+      return {type: 'response', message: fullResponse}
+  }
+
+  async askMulti2<T>(
+    messages: OpenAiMessage[],
+    handleChunk: (data: StreamAIMessage) => (void | PromiseLike<void>),
+    functions?: AiFunctionEnhanced[]
+  ) {
+
+    const stream = await openai.chat.completions.create({
+      messages,
+      model: this.model,
+      stream: true,
+      functions: functions.map(f => f.data)
+    })
+
+    let {isFunctionCalling, functionName, fullResponse} = await this.handleGPTResponse(stream, handleChunk);
+
+    let functionResult = null
+    if (isFunctionCalling){
+      const func = functions.find(f => f.data.name === functionName)
+      const args = Object.values(JSON.parse(fullResponse)) as string[]
+      functionResult = await func.exec(...args)
+    }
+
+    this.isFunctionCalling = isFunctionCalling
+    this.functionName = functionName
+    this.fullResponse = fullResponse
+    this.functionResult = functionResult
+    return this
+  }
+
+
+  function (cb: (s: string) => any) {
+    if (this.isFunctionCalling) cb(this.functionResult)
+    return this
+  }
+
+  text(cb: (s: string) => any) {
+    if (!this.isFunctionCalling) cb(this.fullResponse)
+    return this
+  }
+
+
+  private async handleGPTResponse(stream: Stream<OpenAiChunk>, handleChunk: (data: StreamAIMessage) => (void | PromiseLike<void>)) {
     let isFunctionCalling = false
     let functionName = ""
     let fullResponse = ""
     let first = true
-    const stream = await openai.chat.completions.create({messages, model: this.model, stream: true, functions})
-
     for await (const {choices: [result]} of stream) {
 
       if (result.delta.function_call) {
         functionName = functionName || result.delta.function_call.name
-        console.log({functionName})
         isFunctionCalling = true
       }
 
@@ -48,26 +108,22 @@ export class GptApi {
       fullResponse += text || ""
 
       if (!isFunctionCalling) {
-
         const data = {text, first, last: result.finish_reason === 'stop'}
         await handleChunk(data)
-
         first = false
       }
     }
-    if (isFunctionCalling)
-      return {type: 'function', message: JSON.parse(fullResponse), name: functionName}
-    else
-      return {type: 'response', message: fullResponse}
+    console.log({isFunctionCalling, functionName, fullResponse})
+    return {isFunctionCalling, functionName, fullResponse};
   }
 
   async askStream(messages: OpenAiMessage[], handleChunk: (data: StreamAIMessage) => (void | PromiseLike<void>), functions?: AiFunction[]) {
-    let fullResponse = ""
-    let first = true
+
     const stream = await openai.chat.completions.create({messages, model: this.model, stream: true, functions})
 
+    let fullResponse = ""
+    let first = true
     for await (const chunk of stream) {
-      console.dir({chunk}, {depth: null})
       const [result] = chunk.choices
       const text = result.delta.content
       fullResponse += text
@@ -83,12 +139,13 @@ export class GptApi {
 
   async imagePrompt(prompt: string) {
     const image = await openai.images.generate({
+      model: 'dall-e-3',
       prompt,
       response_format: 'b64_json',
       size: '256x256',
       n: 1
     });
-    return { type: 'response', message: image.data[0].b64_json };
+    return {type: 'response', message: image.data[0].b64_json};
   }
 }
 
