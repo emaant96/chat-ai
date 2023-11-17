@@ -1,7 +1,7 @@
-import { io } from 'socket.io-client';
+import {io, Socket} from 'socket.io-client';
 
 export class ClientSocketService {
-  private socket;
+  private socket:Socket
 
   constructor() {
     this.socket = io(import.meta.env.VITE_SOCKET)

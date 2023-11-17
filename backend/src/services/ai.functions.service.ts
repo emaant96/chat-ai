@@ -55,7 +55,7 @@ export const functions: AiFunctionEnhanced[] = [
       description: "get the info about a company",
       parameters: getInfoCompanyParameters
     },
-    exec: utils.getCompanyInfo
+    exec: (args) => utils.getCompanyInfo(args)
   },
   {
     data: {
@@ -63,7 +63,7 @@ export const functions: AiFunctionEnhanced[] = [
       description: "get the unique selector of an element given his textual description",
       parameters: getHtmlUniqueSelector
     },
-    exec: utils.getHtmlUniqueSelector
+    exec: (args) => utils.getHtmlUniqueSelector(args)
   },
   {
     data: {
@@ -80,6 +80,6 @@ export const functions: AiFunctionEnhanced[] = [
         required: ['prompt']
       }
     },
-    exec: utils.generateImage
+    exec: (args) => utils.generateImage(args)
   }
 ]

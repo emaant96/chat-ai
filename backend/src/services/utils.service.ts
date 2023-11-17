@@ -26,8 +26,6 @@ export class UtilsService {
       console.dir({company}, {depth: 10})
       return {success: true, content: company}
     }
-
-
   }
 
   async getHtmlUniqueSelector(selector: string): UtilsReturn<string>{

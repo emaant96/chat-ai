@@ -36,29 +36,37 @@ socketService.onConnection((socket) => {
   //       chat.add({role: 'assistant', content: response})
   //     }
   //   } else if (response.type == 'function' && response.name == 'generateImage' && "prompt" in response.message) {
-  //     console.log(response.message.prompt)
-  //     chat.add({role: 'function', name: 'generateImage', content: response.message.prompt})
-  //     const image = await gpt.imagePrompt(response.message.prompt);
-  //     resToClient({text: response.message.prompt, src: image.message, first: true})
-  //   } else if (response.type === 'response') {
-  //     chat.add({role: 'assistant', content: response.message})
-  //   }
+  // console.log(response.message.prompt)
+  // chat.add({role: 'function', name: 'generateImage', content: response.message.prompt})
+  // const image = await gpt.imagePrompt(response.message.prompt);
+  // resToClient({text: response.message.prompt, src: image.message, first: true})
+  // } else if (response.type === 'response') {
+  //   chat.add({role: 'assistant', content: response.message})
+  // }
   // })
 
   chat.onMessage(async (data, resToClient) => {
     chat.add({role: 'user', content: data + '. Current date: ' + new Date().toLocaleString()})
 
-    await gpt.askMulti2(chat.messages, resToClient, functions).then(async (response) => {
-      response
-        .function((res: string) => {
-          console.log('func', res)
-        })
-        .text((res: string) => {
-          console.log('text', res)
-        })
-    })
+    const response = await gpt.multi(chat.messages, resToClient, functions)
 
+    response
+      .function(async (strRes, name, res) => {
+        chat.add({role: 'function', name, content: res.content})
 
+        if (name != 'generateImage') {
+          const fullResponse = await gpt.askStream(chat.messages, resToClient)
+          chat.add({role: 'assistant', content: fullResponse})
+        } else {
+          const image = await gpt.imagePrompt(res.content);
+          resToClient({text: res.content, src: image.message, first: true})
+        }
+
+        console.log('func', strRes)
+      })
+      .text((res: string) => {
+        chat.add({role: 'assistant', content: res})
+        console.log('text', res)
+      })
   })
 })
-
