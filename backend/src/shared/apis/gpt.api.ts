@@ -124,7 +124,6 @@ export class GptApi {
   }
 
   async askStream(messages: OpenAiMessage[], handleChunk: (data: StreamAIMessage) => (void | PromiseLike<void>), functions?: AiFunction[]) {
-    console.log({messages})
     const stream = await openai.chat.completions.create({messages, model: this.model, stream: true, functions})
 
     let fullResponse = ""

@@ -9,8 +9,8 @@ dependencies:
     specifier: ^16.3.1
     version: 16.3.1
   openai:
-    specifier: ^4.16.1
-    version: 4.16.1
+    specifier: ^4.19.0
+    version: 4.19.0
   serpapi:
     specifier: ^2.0.0
     version: 2.0.0
@@ -959,8 +959,8 @@ packages:
       object-keys: 1.1.1
     dev: true
 
-  /openai@4.16.1:
-    resolution: {integrity: sha512-Gr+uqUN1ICSk6VhrX64E+zL7skjI1TgPr/XUN+ZQuNLLOvx15+XZulx/lSW4wFEAQzgjBDlMBbBeikguGIjiMg==}
+  /openai@4.19.0:
+    resolution: {integrity: sha512-cJbl0noZyAaXVKBTMMq6X5BAvP1pm2rWYDBnZes99NL+Zh5/4NmlAwyuhTZEru5SqGGZIoiYKeMPXy4bm9DI0w==}
     hasBin: true
     dependencies:
       '@types/node': 18.18.6

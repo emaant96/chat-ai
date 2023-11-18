@@ -16,11 +16,11 @@
     }
 
     .main-container {
-        @apply w-full h-full flex flex-col justify-center items-center;
+        @apply w-full h-full flex flex-col justify-center items-center pt-10;
     }
 
     button {
-        @apply w-fit absolute bottom-1 left-1 bg-red-400;
+        @apply w-fit absolute top-1 left-1 bg-red-400;
     }
 
     h1 {

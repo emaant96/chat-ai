@@ -20,4 +20,4 @@ export class ClientSocketService {
   }
 }
 
-export const clientSocketService = new ClientSocketService();
+export const socketService = new ClientSocketService();

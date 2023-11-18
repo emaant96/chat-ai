@@ -1,17 +1,18 @@
 <script lang="ts">
   import type {AIMessage} from 'model';
   import Icon from './Icon.svelte';
-  import {clientSocketService} from "../services/socket.service";
+  import {socketService} from "../services/socket.service";
   import {onMount} from "svelte";
   import Typing from "./Typing.svelte";
 
   let messages: AIMessage[] = [];
   let newMessage: AIMessage = {text: '', role: 'user'};
+  let dragEnter = false;
 
   let loadingResponse = false;
 
   onMount(() => {
-    clientSocketService.subscribe('message', (message: {
+    socketService.subscribe('message', (message: {
       text: string,
       first: boolean,
       last: boolean,
@@ -42,13 +43,47 @@
 
   function sendMessage() {
     messages = [...messages, newMessage];
-    clientSocketService.send('message', newMessage.text)
+    socketService.send('message', newMessage.text)
     newMessage = {text: '', role: 'user'};
 
     loadingResponse = true
   }
 
 
+  function handleDragEnter(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy'; // show as copy action
+    dragEnter = true
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy'; // show as copy action
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    dragEnter = false
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    dragEnter = false
+    const file = {
+      id: attachments.length,
+      file: e.dataTransfer.files[0],
+      blob: URL.createObjectURL(e.dataTransfer.files[0])
+    }
+    attachments = [...attachments, file]
+    console.log(e.dataTransfer.files[0]);  // logs the dropped file
+  }
+
+  let attachments: { file: ArrayBuffer, blob: string, id: number }[] = [];
+
+  function removeAttachment(attachment: typeof attachments[number]) {
+    attachments = attachments.filter(a => a.id !== attachment.id)
+    attachments = [...attachments]
+  }
 </script>
 
 <div class="messages-container">
@@ -77,9 +112,40 @@
   {/if}
 </div>
 
-<div class="mt-4 flex gap-2 w-9/12">
-  <input class="flex-1" bind:value={newMessage.text} on:keyup={e => e.key === 'Enter' && sendMessage()}
-         placeholder="Scrivi un messaggio..."/>
+<div class="utility-container py-4">
+  <div class="relative w-full input-container" class:writing={newMessage.text} class:drag-enter={dragEnter}
+       class:attachments={attachments.length > 0}>
+    <div class="absolute flex gap-2 mt-3 ml-3">
+      {#each attachments as attachment}
+        <div class="w-7 h-7 rounded-md shadow-clean relative cursor-pointer">
+          <img class="w-full h-full" src={attachment.blob} alt="img"/>
+          <div on:click={() => removeAttachment(attachment)} on:keydown={() => {}} role="button" tabindex="0"
+               class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gray-500 flex justify-center items-center">
+            <Icon class="w-2 h-2" name="close" color="white"/>
+          </div>
+        </div>
+      {/each}
+    </div>
+    <input type="text" bind:value={newMessage.text}
+           class:drag-enter={dragEnter}
+           class:attachments={attachments.length > 0}
+           on:keyup={e => e.key === 'Enter' && sendMessage()}
+           placeholder="{dragEnter ? 'Carica file' : 'Scrivi un messaggio...'}"
+           on:dragenter={handleDragEnter}
+           on:dragover={handleDragOver}
+           on:dragleave={handleDragLeave}
+           on:drop={handleDrop}
+    />
+    {#if !dragEnter}
+      <input id="file" class="absolute w-0 h-0 opacity-0" type="file"/>
+      <label for="file" class="absolute right-3 cursor-pointer">
+        <svg class="mt-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+             fill="currentColor">
+          <path d="M17 5v12c0 2.757-2.243 5-5 5s-5-2.243-5-5v-12c0-1.654 1.346-3 3-3s3 1.346 3 3v9c0 .551-.449 1-1 1s-1-.449-1-1v-8h-2v8c0 1.657 1.343 3 3 3s3-1.343 3-3v-9c0-2.761-2.239-5-5-5s-5 2.239-5 5v12c0 3.866 3.134 7 7 7s7-3.134 7-7v-12h-2z"/>
+        </svg>
+      </label>
+    {/if}
+  </div>
 
   {#if newMessage.text}
     <button class="send-button" on:click={sendMessage}>
@@ -95,7 +161,8 @@
     @import "../app.scss";
 
     .messages-container {
-        @apply w-11/12 h-3/5 p-4 bg-white rounded-lg overflow-auto flex flex-col gap-4 scrollbar-sm shadow-clean;
+        @apply w-11/12 h-4/5 p-4 bg-white rounded-lg overflow-auto flex flex-col gap-4 scrollbar-sm shadow-clean;
+        @apply transition-all duration-300 ease-in-out;
     }
 
     .message-container {
@@ -122,8 +189,44 @@
         }
     }
 
+    .utility-container {
+        @apply flex gap-2 w-10/12 transition-all flex-1 items-center;
+    }
+
     .send-button {
         @apply w-10 shadow-clean rounded-full aspect-square text-white bg-cyan-600 flex justify-center animation-appear;
+    }
+
+    input[type="text"] {
+        @apply w-full h-full transition-all;
+
+        &.drag-enter {
+            @apply flex text-center;
+        }
+
+        &.attachments {
+            @apply pt-10;
+        }
+    }
+
+    .input-container {
+        @apply transition-all duration-150 ease-in-out h-10;
+
+        &.writing {
+            width: calc(100% - 3rem);
+        }
+
+        &:not(.writing) {
+            @apply w-full;
+        }
+
+        &.drag-enter {
+            @apply h-full flex text-center;
+        }
+
+        &.attachments {
+            @apply h-full;
+        }
     }
 
     .arrow-right {
