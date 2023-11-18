@@ -51,6 +51,7 @@
 
 
   function handleDragEnter(e) {
+    console.log(e)
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy'; // show as copy action
     dragEnter = true
@@ -66,23 +67,35 @@
     dragEnter = false
   }
 
-  function handleDrop(e) {
+  function handleDrop(e: DragEvent) {
     e.preventDefault();
     dragEnter = false
-    const file = {
-      id: attachments.length,
-      file: e.dataTransfer.files[0],
-      blob: URL.createObjectURL(e.dataTransfer.files[0])
-    }
-    attachments = [...attachments, file]
-    console.log(e.dataTransfer.files[0]);  // logs the dropped file
+    addAttachment(e.dataTransfer.files[0])
   }
 
-  let attachments: { file: ArrayBuffer, blob: string, id: number }[] = [];
+  let attachments: { id: number; file: string; blob: string; }[] = [];
 
   function removeAttachment(attachment: typeof attachments[number]) {
     attachments = attachments.filter(a => a.id !== attachment.id)
     attachments = [...attachments]
+  }
+
+  async function addAttachment(file: File) {
+    const attachment = {
+      id: attachments.length,
+      file: await fileToBase64(file) as string,
+      blob: URL.createObjectURL(file)
+    }
+    attachments = [...attachments, attachment]
+  }
+
+  function fileToBase64(file: File): Promise<string | ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 </script>
 
@@ -137,7 +150,8 @@
            on:drop={handleDrop}
     />
     {#if !dragEnter}
-      <input id="file" class="absolute w-0 h-0 opacity-0" type="file"/>
+      <input id="file" class="absolute w-0 h-0 opacity-0" type="file"
+             on:change={e => addAttachment(e.target['files'][0])}/>
       <label for="file" class="absolute right-3 cursor-pointer">
         <svg class="mt-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
              fill="currentColor">
