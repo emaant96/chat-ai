@@ -4,7 +4,7 @@
 
 
 <div class="main-container relative">
-  <h1>Ema AI</h1>
+  <h1>Chat AI</h1>
   <Chat/>
   <button on:click={() => window.location.reload()}>reload</button>
 </div>
