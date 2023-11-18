@@ -130,7 +130,7 @@
            class:drag-enter={dragEnter}
            class:attachments={attachments.length > 0}
            on:keyup={e => e.key === 'Enter' && sendMessage()}
-           placeholder="{dragEnter ? 'Carica file' : 'Scrivi un messaggio...'}"
+           placeholder="{dragEnter ? 'Upload a file' : 'Write a message...'}"
            on:dragenter={handleDragEnter}
            on:dragover={handleDragOver}
            on:dragleave={handleDragLeave}
@@ -149,7 +149,7 @@
 
   {#if newMessage.text}
     <button class="send-button" on:click={sendMessage}>
-      <Icon name="send" tooltip="Invia il messaggio" color="white"></Icon>
+      <Icon name="send" tooltip="Send message" color="white"></Icon>
     </button>
   {/if}
 </div>
