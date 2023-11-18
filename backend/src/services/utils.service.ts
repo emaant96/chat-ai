@@ -4,9 +4,9 @@ import {OpenapiCompanyAdvanced} from "../types";
 export class UtilsService {
 
   companyResponses = {
-    noCompany: `Non ho trovato nessuna azienda, riprova con un nome diverso`,
-    someCompanies: (companies: string[]) => `ho trovato queste aziende: ${companies.join(', ')}, riprova con un nome più specifico`,
-    manyCompanies: (companies: any[]) => `ho trovato ${companies.length} aziende, riprova con un nome più specifico`
+    noCompany: `I didn't find any company, try again with a different name`,
+    someCompanies: (companies: string[]) => `I found these companies: ${companies.join(', ')}, try again with a more specific name`,
+    manyCompanies: (companies: any[]) => `I found ${companies.length} companies, Try again with a more specific name`
   }
 
   generateImage(imagePrompt: string){

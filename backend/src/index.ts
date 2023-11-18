@@ -11,8 +11,8 @@ socketService.onConnection((socket) => {
   chat.add(
     {
       role: 'system',
-      content: `Sei un intelligenza artificiale che aiuta le persone a trovare informazioni sulle aziende, rispondi 
-                specificando soltanto le informazioni richieste dall'utente`
+      content: `You are an artificial intelligence that helps people find information about companies, respond
+                only specifying the information requested by the user`
     }
   )
 
