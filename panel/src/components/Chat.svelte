@@ -1,12 +1,14 @@
 <script lang="ts">
-  import type {AIMessage} from 'model';
+  import type {AIMessage, Attachment} from 'model';
   import Icon from './Icon.svelte';
   import {socketService} from "../services/socket.service";
   import {onMount} from "svelte";
   import Typing from "./Typing.svelte";
+  import {fileToBase64} from "../functions/file.utils";
+  import {notify} from "../stores/notification.store";
 
   let messages: AIMessage[] = [];
-  let newMessage: AIMessage = {text: '', role: 'user'};
+  let newMessage: AIMessage = {text: '', role: 'user', attachments: []};
   let dragEnter = false;
 
   let loadingResponse = false;
@@ -43,8 +45,8 @@
 
   function sendMessage() {
     messages = [...messages, newMessage];
-    socketService.send('message', newMessage.text)
-    newMessage = {text: '', role: 'user'};
+    socketService.send('message', {text: newMessage.text, attachments: newMessage.attachments})
+    newMessage = {text: '', role: 'user', attachments: []};
 
     loadingResponse = true
   }
@@ -73,30 +75,26 @@
     addAttachment(e.dataTransfer.files[0])
   }
 
-  let attachments: { id: number; file: string; blob: string; }[] = [];
 
-  function removeAttachment(attachment: typeof attachments[number]) {
-    attachments = attachments.filter(a => a.id !== attachment.id)
-    attachments = [...attachments]
+  function removeAttachment(attachment: Attachment) {
+    newMessage.attachments = newMessage.attachments.filter(a => a.id !== attachment.id)
+    newMessage.attachments = [...newMessage.attachments]
   }
 
   async function addAttachment(file: File) {
+    if (file.type.indexOf('image') === -1) {
+      notify('Only images are supported')
+      return
+    }
     const attachment = {
-      id: attachments.length,
+      id: newMessage.attachments.length,
+      name: file.name,
       file: await fileToBase64(file) as string,
       blob: URL.createObjectURL(file)
     }
-    attachments = [...attachments, attachment]
+    newMessage.attachments = [...newMessage.attachments, attachment]
   }
 
-  function fileToBase64(file: File): Promise<string | ArrayBuffer> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
 </script>
 
 <div class="messages-container">
@@ -109,7 +107,11 @@
         {#if message.src}
           <img class="rounded-lg" src={'data:image/png;base64,' + message.src} alt="Immagine"/>
         {/if}
-        {message.text} </div>
+        {#if message.attachments?.length > 0}
+          <img class="rounded-lg" src={message.attachments[0].blob} alt="Immagine"/>
+        {/if}
+        {message.text}
+      </div>
       {#if message.role === 'user'}
         <div class="arrow-right"></div>
       {/if}
@@ -127,21 +129,21 @@
 
 <div class="utility-container py-4">
   <div class="relative w-full input-container" class:writing={newMessage.text} class:drag-enter={dragEnter}
-       class:attachments={attachments.length > 0}>
+       class:attachments={newMessage.attachments.length > 0}>
     <div class="absolute flex gap-2 mt-3 ml-3">
-      {#each attachments as attachment}
+      {#each newMessage.attachments as attachment}
         <div class="w-7 h-7 rounded-md shadow-clean relative cursor-pointer">
           <img class="w-full h-full" src={attachment.blob} alt="img"/>
           <div on:click={() => removeAttachment(attachment)} on:keydown={() => {}} role="button" tabindex="0"
                class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gray-500 flex justify-center items-center">
-            <Icon class="w-2 h-2" name="close" color="white"/>
+            <Icon class="w-2 h-2" name="close" color="white" tooltip="remove"/>
           </div>
         </div>
       {/each}
     </div>
     <input type="text" bind:value={newMessage.text}
            class:drag-enter={dragEnter}
-           class:attachments={attachments.length > 0}
+           class:attachments={newMessage.attachments.length > 0}
            on:keyup={e => e.key === 'Enter' && sendMessage()}
            placeholder="{dragEnter ? 'Upload a file' : 'Write a message...'}"
            on:dragenter={handleDragEnter}

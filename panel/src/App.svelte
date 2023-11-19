@@ -1,5 +1,6 @@
 <script lang="ts">
   import Chat from "./components/Chat.svelte";
+  import Notification from "./components/Notification.svelte";
 </script>
 
 
@@ -7,7 +8,9 @@
   <h1>Chat AI</h1>
   <Chat/>
   <button on:click={() => window.location.reload()}>reload</button>
+  <Notification/>
 </div>
+
 
 <style lang="postcss">
     :root {

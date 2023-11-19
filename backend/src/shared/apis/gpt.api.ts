@@ -8,6 +8,7 @@ export const openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
 export const functionsModel = "gpt-3.5-turbo-0613"
 export const genericCheapModel = "gpt-3.5-turbo"
 export const niceModel = "gpt-4-1106-preview"
+export const visionModel = 'gpt-4-vision-preview'
 
 export class GptApi {
   openai: OpenAI;
@@ -17,8 +18,13 @@ export class GptApi {
   private functionResultParsed: string;
   private functionResult: { content: string }
 
-  constructor(private model: "gpt-3.5-turbo-0613" | "gpt-3.5-turbo" | "gpt-4-1106-preview") {
+  constructor(private model: "gpt-3.5-turbo-0613" | "gpt-3.5-turbo" | "gpt-4-1106-preview" | 'gpt-4-vision-preview') {
     this.openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
+  }
+
+  set modelType(type: "vision" | "text") {
+    if (type === "vision") this.model = visionModel
+    else this.model = "gpt-3.5-turbo-0613"
   }
 
   async ask<T>(messages: OpenAiMessage[], functions?: AiFunction[]): Promise<OpenAiResponse<T>> {
@@ -62,7 +68,8 @@ export class GptApi {
       messages,
       model: this.model,
       stream: true,
-      functions: functions.map(f => f.data)
+      max_tokens: 1000,
+      functions: functions?.length ? functions.map(f => f.data) : undefined
     })
 
     let {isFunctionCalling, functionName, fullResponse} = await this.handleGPTResponse(stream, handleChunk);
@@ -114,7 +121,7 @@ export class GptApi {
       fullResponse += text || ""
 
       if (!isFunctionCalling) {
-        const data = {text, first, last: result.finish_reason === 'stop'}
+        const data = {text: text || '', first, last: result.finish_reason === 'stop'}
         await handleChunk(data)
         first = false
       }

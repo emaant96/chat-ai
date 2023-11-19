@@ -1,5 +1,6 @@
 import {OpenAiMessage, StreamAIMessage} from "../types";
 import {Socket} from "socket.io";
+import {AIMessage} from "model";
 
 export class Chat {
 
@@ -11,8 +12,8 @@ export class Chat {
     this.socket = socket
   }
 
-  onMessage(onMessageCallback: (data: string, response: (message: StreamAIMessage) => void) => void) {
-    this.socket.on("message", (data) => {
+  onMessage(onMessageCallback: (data: Omit<AIMessage, 'role'>, response: (message: StreamAIMessage) => void) => void) {
+    this.socket.on("message", (data: Omit<AIMessage, 'role'>) => {
       onMessageCallback(data, (message) => this.response(message))
     })
   }
@@ -28,5 +29,9 @@ export class Chat {
 
   get messages() {
     return this.messageHistory
+  }
+
+  set messages(messages: OpenAiMessage[]) {
+    this.messageHistory = messages
   }
 }
