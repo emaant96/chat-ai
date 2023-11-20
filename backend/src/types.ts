@@ -1,13 +1,5 @@
 import {OpenAI} from "openai";
 
-export type MessageTokenized = {
-  company_name: string,
-  business_information: typeof businessInformation[number][]
-}
-
-
-export const businessInformation = ["bilancio", "pec", "indirizzo", "telefono", "email"] as const
-
 export interface OpenapiCompany {
   cf: string;
   denominazione: string;
@@ -63,7 +55,6 @@ export interface OpenapiCompanyAdvanced extends OpenapiCompany {
 }
 
 export type OpenAiResponse<T> = { type: 'function', message: T, name:string } | { type: 'response', message: string }
-
 
 export type OpenAiMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam
 
