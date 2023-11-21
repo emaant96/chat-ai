@@ -110,7 +110,7 @@
         {#if message.attachments?.length > 0}
           <img class="rounded-lg" src={message.attachments[0].blob} alt="Immagine"/>
         {/if}
-        {message.text}
+        {@html message.text.replace(/\n/g, "<br>")}
       </div>
       {#if message.role === 'user'}
         <div class="arrow-right"></div>
