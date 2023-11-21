@@ -24,4 +24,4 @@ export class SocketService{
   }
 }
 
-export const socketService = new SocketService(3005);
+export const socket = new SocketService(3005);

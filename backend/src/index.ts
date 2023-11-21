@@ -1,12 +1,12 @@
 import {Chat} from "./services/chat.service";
 import {gpt, GptApi} from "./shared/apis/gpt.api";
-import {socketService} from "./shared/services/socket.service";
+import {socket} from "./shared/services/socket.service";
 import {functions} from "./services/ai.functions";
 import OpenAI from "openai";
 import ChatCompletionContentPart = OpenAI.ChatCompletionContentPart;
 
 
-socketService.onConnection((socket) => {
+socket.onConnection((socket) => {
 
   const chat = new Chat(socket)
 
