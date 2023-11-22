@@ -4,6 +4,7 @@ const {
   OPENAPI_TOKEN,
   OPENAPI_URL,
   OPENAI_KEY,
+  SERP_KEY,
 } = process.env
 
 export const globalConfig = {
@@ -13,5 +14,8 @@ export const globalConfig = {
   },
   openai: {
     apiKey: OPENAI_KEY,
+  },
+  serp: {
+    apiKey: SERP_KEY,
   }
 }

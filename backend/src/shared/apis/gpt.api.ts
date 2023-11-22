@@ -1,7 +1,9 @@
 import {globalConfig} from "../services/config.service";
 import {OpenAI} from "openai";
-import {AiFunction, AiFunctionEnhanced, OpenAiChunk, OpenAiMessage, OpenAiResponse, StreamAIMessage} from "../../types";
+import {AiFunction, AiFunctionEnhanced, OpenAiChunk, OpenAiMessage, OpenAiResponse} from "../../types";
 import {Stream} from "openai/streaming";
+import * as fs from "fs";
+import {StreamAIMessage} from "model";
 
 export const openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
 
@@ -25,6 +27,18 @@ export class GptApi {
   set modelType(type: "vision" | "text") {
     if (type === "vision") this.model = visionModel
     else this.model = "gpt-3.5-turbo-0613"
+  }
+
+  async voice(text: string) {
+    const mp3 = await openai.audio.speech.create({
+      model: 'tts-1',
+      voice: 'alloy',
+      response_format: 'mp3',
+      input: text
+    })
+    const buffer = await mp3.buffer()
+    fs.writeFileSync('test.mp3', buffer)
+    return buffer
   }
 
   async ask<T>(messages: OpenAiMessage[], functions?: AiFunction[]): Promise<OpenAiResponse<T>> {

@@ -14,7 +14,7 @@ socket.onConnection((socket) => {
     {
       role: 'system',
       content: `You are an artificial intelligence that helps people find information, respond
-                only specifying the information requested by the user in max 3 sentences.`
+                only specifying the information requested by the user in max 3 sentences. If you dont know the answer search on google using the function searchOnGoogle`
     }
   )
 
@@ -28,14 +28,17 @@ socket.onConnection((socket) => {
           role: 'user',
           content: [
             {type: 'text', text: data.text},
-            ...data.attachments.map(a => ({type: 'image_url', image_url: {url: a.file, detail: 'auto'}})) as ChatCompletionContentPart[]
+            ...data.attachments.map(a => ({
+              type: 'image_url',
+              image_url: {url: a.file, detail: 'auto'}
+            })) as ChatCompletionContentPart[]
           ]
         }
       )
       response = await gpt.multi(chat.messages.filter(m => m.role !== 'function'), resToClient, [])
       chat.messages.pop()
     } else {
-      chat.add({role: 'user', content: data.text + '. Current date: ' + new Date().toLocaleString()})
+      chat.add({role: 'user', content: data.text})
       response = await gpt.multi(chat.messages, resToClient, functions)
     }
     gpt.modelType = 'text'
@@ -51,7 +54,6 @@ socket.onConnection((socket) => {
           const fullResponse = await gpt.askStream(chat.messages, resToClient)
           chat.add({role: 'assistant', content: fullResponse})
         }
-
       })
       .text((res: string) => {
         chat.add({role: 'assistant', content: res})

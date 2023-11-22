@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {AIMessage, Attachment} from 'model';
+  import type {AIMessage, Attachment, StreamAIMessage} from 'model';
   import Icon from './Icon.svelte';
   import {socketService} from "../services/socket.service";
   import {onMount} from "svelte";
@@ -14,15 +14,14 @@
   let loadingResponse = false;
 
   onMount(() => {
-    socketService.subscribe('message', (message: {
-      text: string,
-      first: boolean,
-      last: boolean,
-      src: string
-    }) => {
+    socketService.subscribe('message', (message: StreamAIMessage) => {
       if (message.first) {
         loadingResponse = false
-        let newBotMessage: AIMessage = {text: message.text, role: 'bot', src: message.src};
+        let newBotMessage: AIMessage = {
+          text: message.text,
+          role: 'bot',
+          src: message.src,
+        };
         messages = [...messages, newBotMessage];
       } else {
         messages.at(-1).text += message.text || '';
@@ -109,6 +108,11 @@
         {/if}
         {#if message.attachments?.length > 0}
           <img class="rounded-lg" src={message.attachments[0].blob} alt="Immagine"/>
+        {/if}
+        {#if message.audio}
+          <audio controls>
+            <source src="{message.audio}" type="audio/mpeg">
+          </audio>
         {/if}
         {@html message.text.replace(/\n/g, "<br>")}
       </div>

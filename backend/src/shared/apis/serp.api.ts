@@ -1,4 +1,5 @@
 import {getJson} from "serpapi";
+import {globalConfig} from "../services/config.service";
 
 export class SerpApi {
 
@@ -9,10 +10,13 @@ export class SerpApi {
   constructor(private apiKey: string) {
   }
 
-  q(query: string) {
-    return getJson(this.params(query), (json) => {
-      console.log(json['organic_results'])
+  async q(query: string) {
+    const res = await getJson(this.params(query), (json) => {
+      console.log(json['organic_results'].map((result) => result['snippet']).join('\n'))
     })
+    return res['organic_results']
   }
 
 }
+
+export const serp = new SerpApi(globalConfig.serp.apiKey)

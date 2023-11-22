@@ -57,5 +57,23 @@ export const functions: AiFunctionEnhanced[] = [
       }
     },
     exec: (args) => utils.generateImage(args)
-  }
+  },
+  {
+    data: {
+      name: 'searchOnGoogle',
+      description: 'Generates a google search query',
+      parameters: {
+        type: 'object',
+        properties: {
+          prompt: {
+            type: 'string',
+            description: 'The query to search on google'
+          }
+        },
+        required: ['query']
+      }
+    },
+    exec: (args) => utils.googleSearch(args)
+  },
+
 ]

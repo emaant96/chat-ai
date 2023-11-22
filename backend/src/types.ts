@@ -60,8 +60,6 @@ export type OpenAiMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam
 
 export type OpenAiChunk = OpenAI.Chat.Completions.ChatCompletionChunk
 
-export type StreamAIMessage = { text: string, first?: boolean, last?: boolean, src?: string }
-
 export type AiFunction = OpenAI.Chat.Completions.ChatCompletionCreateParams.Function
 
 export type AiFunctionEnhanced = ({

@@ -1,5 +1,6 @@
 import {openapi} from "../shared/apis/openapi.api";
 import {OpenapiCompanyAdvanced} from "../types";
+import {serp} from "../shared/apis/serp.api";
 
 export class UtilsService {
 
@@ -30,6 +31,12 @@ export class UtilsService {
 
   async getHtmlUniqueSelector(selector: string): UtilsReturn<string>{
     return {success: false, content: selector}
+  }
+
+  async googleSearch(query: string): UtilsReturn<string>{
+    const search:{snippet:string,link:string}[] = await serp.q(query)
+    console.log(search, typeof search)
+    return {success: true, content: search.map((result) => result['snippet']).join('\n')}
   }
 }
 

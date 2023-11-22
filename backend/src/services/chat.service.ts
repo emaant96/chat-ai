@@ -1,6 +1,6 @@
-import {OpenAiMessage, StreamAIMessage} from "../types";
+import {OpenAiMessage} from "../types";
 import {Socket} from "socket.io";
-import {AIMessage} from "model";
+import {AIMessage, StreamAIMessage} from "model";
 
 export class Chat {
 
