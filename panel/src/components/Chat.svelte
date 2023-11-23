@@ -13,6 +13,9 @@
 
   let loadingResponse = false;
 
+  let textarea: HTMLTextAreaElement;
+  let messagesContainer: HTMLDivElement;
+
   onMount(() => {
     socketService.subscribe('message', (message: StreamAIMessage) => {
       if (message.first) {
@@ -37,16 +40,14 @@
 
 
   function scrollToBottom() {
-    const messagesContainer = document.querySelector('.messages-container');
-    if (messagesContainer)
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
   function sendMessage() {
+    textarea.style.height = 'auto'
     messages = [...messages, newMessage];
     socketService.send('message', {text: newMessage.text, attachments: newMessage.attachments})
     newMessage = {text: '', role: 'user', attachments: []};
-
     loadingResponse = true
   }
 
@@ -74,6 +75,10 @@
     addAttachment(e.dataTransfer.files[0])
   }
 
+  function handleInput() {
+    textarea.style.height = `${textarea.scrollHeight}px`
+  }
+
 
   function removeAttachment(attachment: Attachment) {
     newMessage.attachments = newMessage.attachments.filter(a => a.id !== attachment.id)
@@ -96,7 +101,7 @@
 
 </script>
 
-<div class="messages-container">
+<div class="messages-container" bind:this={messagesContainer}>
   {#each messages as message}
     <div class="message-container" class:user={message.role === 'user'}>
       {#if message.role === 'bot'}
@@ -145,15 +150,17 @@
         </div>
       {/each}
     </div>
-    <input type="text" bind:value={newMessage.text}
-           class:drag-enter={dragEnter}
-           class:attachments={newMessage.attachments.length > 0}
-           on:keyup={e => e.key === 'Enter' && sendMessage()}
-           placeholder="{dragEnter ? 'Upload a file' : 'Write a message...'}"
-           on:dragenter={handleDragEnter}
-           on:dragover={handleDragOver}
-           on:dragleave={handleDragLeave}
-           on:drop={handleDrop}
+    <textarea bind:value={newMessage.text}
+              bind:this={textarea}
+              class:drag-enter={dragEnter}
+              class:attachments={newMessage.attachments.length > 0}
+              on:keyup={e => e.key === 'Enter' && sendMessage()}
+              placeholder="{dragEnter ? 'Upload a file' : 'Write a message...'}"
+              on:input={handleInput}
+              on:dragenter={handleDragEnter}
+              on:dragover={handleDragOver}
+              on:dragleave={handleDragLeave}
+              on:drop={handleDrop}
     />
     {#if !dragEnter}
       <input id="file" class="absolute w-0 h-0 opacity-0" type="file"
@@ -181,7 +188,7 @@
     @import "../app.scss";
 
     .messages-container {
-        @apply w-11/12 h-4/5 p-4 bg-white rounded-lg overflow-auto flex flex-col gap-4 scrollbar-sm shadow-clean;
+        @apply w-11/12 flex-1 p-4 bg-white rounded-lg overflow-auto flex flex-col gap-4 scrollbar-sm shadow-clean;
         @apply transition-all duration-300 ease-in-out;
     }
 
@@ -210,15 +217,15 @@
     }
 
     .utility-container {
-        @apply flex gap-2 w-10/12 transition-all flex-1 items-center;
+        @apply flex gap-2 w-10/12 min-h-[100px] max-h-fit transition-all items-center;
     }
 
     .send-button {
         @apply w-10 shadow-clean rounded-full aspect-square text-white bg-cyan-600 flex justify-center animation-appear;
     }
 
-    input[type="text"] {
-        @apply w-full h-full transition-all;
+    textarea {
+        @apply w-full h-full transition-all pr-10 resize-none overflow-hidden;
 
         &.drag-enter {
             @apply flex text-center;
@@ -230,7 +237,7 @@
     }
 
     .input-container {
-        @apply transition-all duration-150 ease-in-out h-10;
+        @apply transition-all duration-150 ease-in-out;
 
         &.writing {
             width: calc(100% - 3rem);
