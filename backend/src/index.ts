@@ -2,20 +2,22 @@ import {Chat} from "./services/chat.service";
 import {gpt, GptApi} from "./shared/apis/gpt.api";
 import {socket} from "./shared/services/socket.service";
 import {functions} from "./services/ai.functions";
-import OpenAI from "openai";
-import ChatCompletionContentPart = OpenAI.ChatCompletionContentPart;
 
 
 socket.onConnection((socket) => {
 
   const chat = new Chat(socket)
 
-  chat.add(
-    {
-      role: 'system',
-      content: `You are an artificial intelligence that helps people find information, respond
-                only specifying the information requested by the user in max 3 sentences. If you dont know the answer search on google using the function searchOnGoogle`
-    }
+  chat.add.system(
+    `You are an artificial intelligence that helps people find information, 
+     respond only specifying the information requested by the user in max 3 sentences. 
+     You have the possibility to search on Google using the function searchOnGoogle, so if you don't know the answer 
+     (because is too recent for example) search on Google using the function searchOnGoogle,
+     nelle tue risposte per andare a capo usa il carattere speciale <br>, 
+     per inserire un link usa il carattere speciale <a href="Link di riferimento">Link</a>,
+     evidenzia le parole piu importanti della frase con il carattere speciale <b>parola importante</b>
+     e se puoi organizza la risposta in un elenco andando a capo con il carattere speciale <br> e mettendo un trattino davanti ad ogni elemento dell'elenco
+     `
   )
 
   let response: GptApi
@@ -23,40 +25,27 @@ socket.onConnection((socket) => {
   chat.onMessage(async (data, resToClient) => {
     if (data.attachments.length > 0) {
       gpt.modelType = 'vision'
-      chat.add(
-        {
-          role: 'user',
-          content: [
-            {type: 'text', text: data.text},
-            ...data.attachments.map(a => ({
-              type: 'image_url',
-              image_url: {url: a.file, detail: 'auto'}
-            })) as ChatCompletionContentPart[]
-          ]
-        }
-      )
+      chat.add.attachment(data.text, data.attachments)
       response = await gpt.multi(chat.messages.filter(m => m.role !== 'function'), resToClient, [])
       chat.messages.pop()
     } else {
-      chat.add({role: 'user', content: data.text})
+      chat.add.user(data.text)
       response = await gpt.multi(chat.messages, resToClient, functions)
     }
     gpt.modelType = 'text'
 
     response
       .function(async (strRes, name, res) => {
-        chat.add({role: 'function', name, content: strRes})
+        chat.add.function(name, strRes)
 
         if (name == 'generateImage') {
           const image = await gpt.imagePrompt(res.content);
           resToClient({text: res.content, src: image.message, first: true})
         } else {
           const fullResponse = await gpt.askStream(chat.messages, resToClient)
-          chat.add({role: 'assistant', content: fullResponse})
+          chat.add.assistant(fullResponse)
         }
       })
-      .text((res: string) => {
-        chat.add({role: 'assistant', content: res})
-      })
+      .text((res: string) => chat.add.assistant(res))
   })
 })
