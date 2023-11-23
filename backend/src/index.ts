@@ -13,10 +13,9 @@ socket.onConnection((socket) => {
      respond only specifying the information requested by the user in max 3 sentences. 
      You have the possibility to search on Google using the function searchOnGoogle, so if you don't know the answer 
      (because is too recent for example) search on Google using the function searchOnGoogle,
-     nelle tue risposte per andare a capo usa il carattere speciale <br>, 
-     per inserire un link usa il carattere speciale <a href="Link di riferimento">Link</a>,
-     evidenzia le parole piu importanti della frase con il carattere speciale <b>parola importante</b>
-     e se puoi organizza la risposta in un elenco andando a capo con il carattere speciale <br> e mettendo un trattino davanti ad ogni elemento dell'elenco
+     In your responses, to add a line break, use special character <br>, to insert a link, use the special character <a href="Reference link">Link</a>,
+     highlight the most important words in the sentence with the special character <b>important word</b> 
+     and if you can, organize the response in a list by using a line break with the special character <br> and placing a hyphen in front of each item on the list
      `
   )
 
