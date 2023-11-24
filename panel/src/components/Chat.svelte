@@ -181,7 +181,7 @@
   {/if}
 </div>
 
-<style lang="postcss">
+<style lang="scss">
 
     @import "../assets/_scrollbar.scss";
     @import "../assets/_animations.scss";

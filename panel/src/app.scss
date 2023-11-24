@@ -42,3 +42,7 @@ input[type="text"] {
 textarea {
     @apply outline-none px-5 py-2 rounded-2xl border-none bg-gray-100 shadow-clean h-10;
 }
+
+a {
+    @apply text-blue-500 hover:underline cursor-pointer;
+}

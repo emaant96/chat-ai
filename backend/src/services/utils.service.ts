@@ -10,7 +10,7 @@ export class UtilsService {
     manyCompanies: (companies: any[]) => `I found ${companies.length} companies, Try again with a more specific name`
   }
 
-  generateImage(imagePrompt: string){
+  generateImage(imagePrompt: string) {
     return {success: true, content: imagePrompt}
   };
 
@@ -19,7 +19,10 @@ export class UtilsService {
     if (companies.length === 0) {
       return {success: false, content: this.companyResponses.noCompany}
     } else if (companies.length > 1 && companies.length < 10) {
-      return {success: false, content: this.companyResponses.someCompanies(companies.map(company => company.denominazione))}
+      return {
+        success: false,
+        content: this.companyResponses.someCompanies(companies.map(company => company.denominazione))
+      }
     } else if (companies.length > 10) {
       return {success: false, content: this.companyResponses.manyCompanies(companies)}
     } else if (companies.length === 1) {
@@ -29,14 +32,26 @@ export class UtilsService {
     }
   }
 
-  async getHtmlUniqueSelector(selector: string): UtilsReturn<string>{
+  async getHtmlUniqueSelector(selector: string): UtilsReturn<string> {
     return {success: false, content: selector}
   }
 
-  async googleSearch(query: string): UtilsReturn<string>{
-    const search:{snippet:string,link:string}[] = await serp.q(query)
-    console.log(search, typeof search)
-    return {success: true, content: search.map((result) => result['snippet']).join('\n')}
+  async googleSearch(query: string): UtilsReturn<string> {
+    console.log('1', {query})
+    const search: { snippet: string, link: string }[] = await serp.q(query)
+    return {
+      success: true,
+      content: search.map((result) => `text: ${result.snippet}, link: ${result.link};`).join('\n')
+    }
+  }
+
+  async googleSearchWithTopic(query: string, topic: string): UtilsReturn<string> {
+    console.log('2', {query, topic})
+    const search: { snippet: string, link: string }[] = await serp.news(query)
+    return {
+      success: true,
+      content: search.map((result) => `text: ${result.snippet}, link: ${result.link};`).join('\n')
+    }
   }
 }
 

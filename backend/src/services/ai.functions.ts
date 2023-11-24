@@ -65,15 +65,37 @@ export const functions: AiFunctionEnhanced[] = [
       parameters: {
         type: 'object',
         properties: {
-          prompt: {
+          query: {
             type: 'string',
             description: 'The query to search on google'
-          }
+          },
         },
         required: ['query']
       }
     },
     exec: (args) => utils.googleSearch(args)
   },
+  {
+    data: {
+      name: 'searchOnGoogleWithTopic',
+      description: 'Generates a google search query',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'The query to search on google'
+          },
+          topic: {
+            type: 'string',
+            description: 'The topic that the user is searching for',
+            enum: ['nws']
+          }
+        },
+        required: ['query', 'topic']
+      }
+    },
+    exec: (query, topic) => utils.googleSearchWithTopic(query, topic)
+  }
 
 ]
