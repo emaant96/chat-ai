@@ -17,14 +17,14 @@ export class SerpApi {
 
   async q(query: string, topic?: string) {
     const res = await getJson(this.params(query, topic), (json) => {
-      console.log(json['organic_results'].map((result) => result['snippet']).join('\n'))
+      console.log(json['organic_results'])
     })
     return res['organic_results']
   }
 
   async news(query: string) {
     const res = await getJson(this.params(query, 'nws'), (json) => {
-      console.log(json['news_results'].map((result) => result['snippet']).join('\n'))
+      console.log(json['news_results'])
     })
     return res['news_results']
 

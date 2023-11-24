@@ -88,7 +88,7 @@ export const functions: AiFunctionEnhanced[] = [
           },
           topic: {
             type: 'string',
-            description: 'The topic that the user is searching for',
+            description: 'The topic that the user is searching for (nws is for news)',
             enum: ['nws']
           }
         },
