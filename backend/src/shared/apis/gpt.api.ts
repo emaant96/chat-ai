@@ -8,6 +8,7 @@ import {StreamAIMessage} from "model";
 export const openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
 
 export const functionsModel = "gpt-3.5-turbo-0613"
+export const assistantModel = "gpt-3.5-turbo-1106"
 export const genericCheapModel = "gpt-3.5-turbo"
 export const niceModel = "gpt-4-1106-preview"
 export const visionModel = 'gpt-4-vision-preview'
@@ -172,6 +173,59 @@ export class GptApi {
     });
     return {type: 'response', message: image.data[0].b64_json};
   }
+
+  async newThread() {
+    const thread = await openai.beta.threads.create();
+    return thread.id
+  }
+
+  async newAssistant(fileIds: string[]) {
+    const assistant = await openai.beta.assistants.create({
+      name: "Minimal unique html selector extractor",
+      instructions: "You are a html code interpreter that given a description of a html element and his css data can resolve problems that the user ask, once it asked you something it can't give you more informations but you have to resolve the problem without respond surround stuff, only the response at his question",
+      tools: [{type: "code_interpreter"}, {type: 'retrieval'}],
+      model: assistantModel,
+      file_ids: fileIds
+    });
+    return assistant.id
+  }
+
+  async getAssistants() {
+    const assistants = await openai.beta.assistants.list()
+    return assistants.data.map(a => a.id)
+  }
+
+  async addFile(path: string) {
+    const file = await openai.files.create({
+      file: fs.createReadStream(path),
+      purpose: "assistants",
+    });
+    return file.id
+  }
+
+  async addMessageToThread(threadId: string, message: string) {
+    await openai.beta.threads.messages.create(
+      threadId,
+      {role: 'user', content: message}
+    );
+  }
+
+  async runAssistant(assistantId: string, threadId: string) {
+    const run = await openai.beta.threads.runs.create(
+      threadId,
+      {
+        assistant_id: assistantId,
+      }
+    );
+    return run
+  }
+
+  async getThreadMessages(threadId: string) {
+    const messages = await openai.beta.threads.messages.list(
+      threadId
+    );
+    return messages.data
+  }
 }
 
-export const gpt = new GptApi(niceModel);
+export const gpt = new GptApi(genericCheapModel);
