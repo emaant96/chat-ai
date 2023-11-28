@@ -8,7 +8,7 @@ import {StreamAIMessage} from "model";
 export const openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
 
 export const functionsModel = "gpt-3.5-turbo-0613"
-export const genericCheapModel = "gpt-3.5-turbo"
+export const genericCheapModel = "gpt-3.5-turbo-1106"
 export const niceModel = "gpt-4-1106-preview"
 export const visionModel = 'gpt-4-vision-preview'
 
@@ -20,7 +20,7 @@ export class GptApi {
   private functionResultParsed: string;
   private functionResult: { content: string }
 
-  constructor(private model: "gpt-3.5-turbo-0613" | "gpt-3.5-turbo" | "gpt-4-1106-preview" | 'gpt-4-vision-preview') {
+  constructor(private model: string) {
     this.openai = new OpenAI({apiKey: globalConfig.openai.apiKey});
   }
 
@@ -103,18 +103,12 @@ export class GptApi {
     return this
   }
 
-
   function(cb: (sP: string, name: string, s: { content: any }) => any) {
     if (this.isFunctionCalling) cb(this.functionResultParsed, this.functionName, this.functionResult)
     return this
   }
 
   text(cb: (s: string) => any) {
-    if (!this.isFunctionCalling) cb(this.fullResponse)
-    return this
-  }
-
-  img(cb: (s: string) => any) {
     if (!this.isFunctionCalling) cb(this.fullResponse)
     return this
   }
@@ -174,4 +168,4 @@ export class GptApi {
   }
 }
 
-export const gpt = new GptApi(niceModel);
+export const gpt = new GptApi(genericCheapModel);
